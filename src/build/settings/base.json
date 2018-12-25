@@ -1,0 +1,6 @@
+{
+    "app_name": "flint_chat_room",
+    "author": "Channing",
+    "main_module": "src/main/python/main.py",
+    "version": "0.0.0"
+}

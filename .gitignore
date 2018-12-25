@@ -1,0 +1,6 @@
+src/mian/python/__pycache__
+__pycache__
+*.ui
+.idea
+target
+venv
