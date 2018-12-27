@@ -49,7 +49,10 @@ class RefreshThread(QThread):
         while True:
             url = SERVER_URL
             if url.__contains__("http"):
-                li = refresh_list()
+                try:
+                    li = refresh_list()
+                except:
+                    pass
                 self.trigger.emit(li)
                 time.sleep(1)
 
@@ -141,12 +144,18 @@ def send_to_server(text):
         pass
     else:
         if PROXY_URL is "" or PROXY_PORT is "":
-            r = req.get(SERVER_URL + ":" + SERVER_PORT + "/put_history", json=send_data)
+            try:
+                r = req.get(SERVER_URL + ":" + SERVER_PORT + "/put_history", json=send_data)
+            except:
+                return False
         else:
             proxies = {
                 "http": PROXY_URL + ":" + PROXY_PORT
             }
-            r = req.post(SERVER_URL + ":" + SERVER_PORT + "/put_history", proxies=proxies, json=send_data)
+            try:
+                r = req.post(SERVER_URL + ":" + SERVER_PORT + "/put_history", proxies=proxies, json=send_data)
+            except:
+                return False
         if r.text.__contains__("success"):
             return True
         else:
@@ -189,7 +198,7 @@ class Configer:
         self.proxy_port = PROXY_PORT
 
         if not self.checkIsConfigExist():
-            f = open(os.getcwd().replace("\\", "/")+"/config.ini", "w", newline="")
+            f = open(os.getcwd().replace("\\", "/") + "/config.ini", "w", newline="")
             templete = "[SERVER]\n" \
                        "url=\n" \
                        "port=\n" \
@@ -199,7 +208,7 @@ class Configer:
                        "port=\n"
             f.write(templete)
             f.close()
-        self.PATH = os.getcwd().replace("\\", "/")+"/config.ini"
+        self.PATH = os.getcwd().replace("\\", "/") + "/config.ini"
 
     def checkIsConfigExist(self):
         cur_path_files = os.listdir(os.getcwd().replace("\\", "/"))
@@ -211,7 +220,6 @@ class Configer:
 
     def getConfig(self):
         cfg = ConfigParser()
-        print(self.PATH)
         cfg.read(self.PATH)
         global SERVER_URL
         global SERVER_PORT
