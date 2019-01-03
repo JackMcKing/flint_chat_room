@@ -77,7 +77,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -91,7 +91,7 @@ class Ui_MainWindow(object):
         self.label_2.setText(_translate("MainWindow", "Port:"))
         self.label_3.setText(_translate("MainWindow", "Proxy:"))
         self.label_4.setText(_translate("MainWindow", "Port:"))
-        self.pushButton_2.setText(_translate("MainWindow", "Test and Coonect"))
+        self.pushButton_2.setText(_translate("MainWindow", "Test and Connect"))
         self.label_5.setText(_translate("MainWindow", "No Status"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("MainWindow", "Setting"))
 
