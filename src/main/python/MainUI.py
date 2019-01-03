@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\pachongui.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.2
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -11,23 +11,31 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(432, 364)
+        MainWindow.resize(432, 398)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
-        self.tabWidget.setGeometry(QtCore.QRect(20, 10, 391, 321))
+        self.tabWidget.setGeometry(QtCore.QRect(20, 10, 391, 351))
         self.tabWidget.setObjectName("tabWidget")
         self.tab_3 = QtWidgets.QWidget()
         self.tab_3.setObjectName("tab_3")
         self.listWidget = QtWidgets.QListWidget(self.tab_3)
-        self.listWidget.setGeometry(QtCore.QRect(10, 10, 351, 241))
+        self.listWidget.setGeometry(QtCore.QRect(10, 40, 361, 241))
         self.listWidget.setObjectName("listWidget")
         self.lineEdit = QtWidgets.QLineEdit(self.tab_3)
-        self.lineEdit.setGeometry(QtCore.QRect(10, 260, 271, 20))
+        self.lineEdit.setGeometry(QtCore.QRect(10, 290, 281, 20))
         self.lineEdit.setObjectName("lineEdit")
         self.pushButton = QtWidgets.QPushButton(self.tab_3)
-        self.pushButton.setGeometry(QtCore.QRect(290, 260, 75, 23))
+        self.pushButton.setGeometry(QtCore.QRect(300, 290, 75, 23))
         self.pushButton.setObjectName("pushButton")
+        self.label_6 = QtWidgets.QLabel(self.tab_3)
+        self.label_6.setGeometry(QtCore.QRect(210, 10, 51, 20))
+        self.label_6.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.label_6.setObjectName("label_6")
+        self.label_7 = QtWidgets.QLabel(self.tab_3)
+        self.label_7.setGeometry(QtCore.QRect(260, 10, 111, 20))
+        self.label_7.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.label_7.setObjectName("label_7")
         self.tabWidget.addTab(self.tab_3, "")
         self.tab_4 = QtWidgets.QWidget()
         self.tab_4.setObjectName("tab_4")
@@ -69,13 +77,15 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.pushButton.setText(_translate("MainWindow", "Send"))
+        self.label_6.setText(_translate("MainWindow", "online:"))
+        self.label_7.setText(_translate("MainWindow", "0"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Chat"))
         self.label.setText(_translate("MainWindow", "Address:"))
         self.label_2.setText(_translate("MainWindow", "Port:"))

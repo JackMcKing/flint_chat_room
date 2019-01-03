@@ -25,6 +25,14 @@ class AppContext(ApplicationContext):  # 1. Subclass ApplicationContext
         window = Dlog()
         window.setWindowTitle("flint chat room")
 
+        def online_work(num):
+            online_lable.clear()
+            online_lable.setText(num)
+
+        online_thread = RefreshOnlineNumThread()
+        online_thread._signal.connect(online_work)
+        online_thread.start()
+
         def work(li):
             lw.clear()
             for item in li:
@@ -37,6 +45,36 @@ class AppContext(ApplicationContext):  # 1. Subclass ApplicationContext
         thread.trigger.connect(work)
         thread.start()
         return self.app.exec_()  # 3. End run() with this line
+
+
+class RefreshOnlineNumThread(QThread):
+    _signal = pyqtSignal(str)
+
+    def __int__(self):
+        super(RefreshOnlineNumThread, self).__init__()
+
+    def run(self):
+        while True:
+            if SERVER_URL is "" or SERVER_PORT is "":
+                pass
+            else:
+                if PROXY_URL is "" or PROXY_PORT is "":
+                    try:
+                        r = req.get(SERVER_URL + ":" + SERVER_PORT + "/online")
+                    except:
+                        pass
+                else:
+                    proxies = {
+                        "http": PROXY_URL + ":" + PROXY_PORT
+                    }
+                    try:
+                        r = req.get(SERVER_URL + ":" + SERVER_PORT + "/online", proxies=proxies)
+                    except:
+                        pass
+                if r.text.__contains__("Online"):
+                    num = r.text.count(",") + 1
+                    self._signal.emit(str(num))
+                time.sleep(5)
 
 
 class RefreshThread(QThread):
@@ -73,6 +111,8 @@ class Dlog(QMainWindow, Ui_MainWindow):
 
         global lw
         lw = self.listWidget
+        global online_lable
+        online_lable = self.label_7
         self.pushButton.pressed.connect(self.puch_btn)
 
         self.pushButton_2.pressed.connect(self.push_connect_btn)
@@ -131,8 +171,10 @@ class Dlog(QMainWindow, Ui_MainWindow):
             r = send_to_server(str)
             if r is False:
                 self.listWidget.insertItem(self.listWidget.count(), "(系统错误)")
-            self.lineEdit.clear()
-            self.listWidget.insertItem(self.listWidget.count(), str)
+            else:
+                self.lineEdit.clear()
+                self.listWidget.insertItem(self.listWidget.count(), str)
+
             self.listWidget.scrollToBottom()
 
 
@@ -185,7 +227,6 @@ def refresh_list():
             str(add_text).encode("utf-8")
             add_text = add_text[:-1]  # 去掉\n
             ret.append(add_text)
-            # self.listWidget.insertItem(self.listWidget.count(), add_text)
         return ret
 
 
