@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QMainWindow, QApplication
 import requests as req
 from configparser import ConfigParser
 
-from MainUI import Ui_MainWindow
+from src.main.python.MainUI import Ui_MainWindow
 
 # TODO Replace this line with "from src.main.python.MainUI import Ui_MainWindow" before coding
 
@@ -26,20 +26,20 @@ class AppContext(ApplicationContext):  # 1. Subclass ApplicationContext
         window.setWindowTitle("flint chat room")
 
         def online_work(num):
-            online_lable.clear()
-            online_lable.setText(num)
+            window.label_7.clear()
+            window.label_7.setText(num)
 
         online_thread = RefreshOnlineNumThread()
         online_thread._signal.connect(online_work)
         online_thread.start()
 
         def work(li):
-            lw.clear()
+            window.listWidget.clear()
             for item in li:
-                lw.insertItem(lw.count(), str(item))
+                window.listWidget.insertItem(window.listWidget.count(), str(item))
                 global isNewMsg
                 if isNewMsg is True:
-                    lw.scrollToBottom()
+                    window.listWidget.scrollToBottom()
 
         thread = RefreshThread()
         thread.trigger.connect(work)
@@ -109,10 +109,6 @@ class Dlog(QMainWindow, Ui_MainWindow):
         self.lineEdit_4.setText(conf_li[2])
         self.lineEdit_5.setText(conf_li[3])
 
-        global lw
-        lw = self.listWidget
-        global online_lable
-        online_lable = self.label_7
         self.pushButton.pressed.connect(self.puch_btn)
 
         self.pushButton_2.pressed.connect(self.push_connect_btn)
