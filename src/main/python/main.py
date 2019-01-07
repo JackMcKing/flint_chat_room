@@ -71,9 +71,14 @@ class RefreshOnlineNumThread(QThread):
                         r = req.get(SERVER_URL + ":" + SERVER_PORT + "/online", proxies=proxies)
                     except:
                         pass
-                if r.text.__contains__("Online"):
-                    num = r.text.count(",") + 1
-                    self._signal.emit(str(num))
+                try:
+                    if r.text.__contains__("Online"):
+                        num = r.text.count(",") + 1
+                        self._signal.emit(str(num))
+                    else:
+                        self._signal.emit("No Redis Service")
+                except:
+                    pass
                 time.sleep(5)
 
 
@@ -109,7 +114,7 @@ class Dlog(QMainWindow, Ui_MainWindow):
         self.lineEdit_4.setText(conf_li[2])
         self.lineEdit_5.setText(conf_li[3])
 
-        self.pushButton.pressed.connect(self.puch_btn)
+        self.pushButton.pressed.connect(self.push_btn)
 
         self.pushButton_2.pressed.connect(self.push_connect_btn)
 
@@ -153,37 +158,41 @@ class Dlog(QMainWindow, Ui_MainWindow):
         else:
             self.label_5.setText("connect failed")
 
-    def puch_btn(self):
-        str = self.lineEdit.text()
+    def push_btn(self):
+        msg_lineedit = self.lineEdit.text()
         isJustNoneLetterflag = True
-        for i in str:
+        for i in msg_lineedit:
             if i is not " ":
                 isJustNoneLetterflag = False
-        if str is "":
+        if msg_lineedit is "":
             return
         elif isJustNoneLetterflag is True:
             return
         else:
-            r = send_to_server(str)
+            r = send_to_server(self.ID_LINEEDIT.text(), str(time.time()), msg_lineedit)
             if r is False:
-                self.listWidget.insertItem(self.listWidget.count(), "(系统错误)")
+                self.STATUS_LABEL.setText("发送失败（没有填写用户ID或网络连接丢失）")
             else:
+                self.STATUS_LABEL.clear()
                 self.lineEdit.clear()
-                self.listWidget.insertItem(self.listWidget.count(), str)
+                self.listWidget.insertItem(self.listWidget.count(), "(Sending...)"+msg_lineedit)
 
             self.listWidget.scrollToBottom()
 
 
-def send_to_server(text):
-    j_data = '{"0":"' + text + '"}'
-    send_data = json.loads(j_data)
+def send_to_server(id, timestamp, text):
+    data_template = {"ID": id, "TIMESTAMP": timestamp, "TEXT": text}
+    send_data = json.dumps(data_template)
+
+    if id is "":
+        return False
 
     if SERVER_URL is "" or SERVER_PORT is "":
         pass
     else:
         if PROXY_URL is "" or PROXY_PORT is "":
             try:
-                r = req.get(SERVER_URL + ":" + SERVER_PORT + "/put_history", json=send_data)
+                r = req.post(SERVER_URL + ":" + SERVER_PORT + "/put_history", json=send_data)
             except:
                 return False
         else:
@@ -218,12 +227,18 @@ def refresh_list():
         ret = []
         isNewMsg = False if msgLen is len(r) else True
         msgLen = len(r)
-        for i in range(len(r)):
-            add_text = r[str(i)]
-            str(add_text).encode("utf-8")
-            add_text = add_text[:-1]  # 去掉\n
-            ret.append(add_text)
-        return ret
+        for msg in list(r):
+            msg = dict(msg)
+            ID = (msg.get('ID'))
+            TIMESTAMP = (msg.get('TIMESTAMP'))
+            TEXT = (msg.get('TEXT'))
+            ret.append(str(ID + " [" + TIMESTAMP + "]" + " : " + TEXT))
+        # for i in range(len(r)):
+        #     add_text = r[str(i)]
+        #     str(add_text).encode("utf-8")
+        #     add_text = add_text[:-1]  # 去掉\n
+        #     ret.append(add_text)
+        return list(ret)
 
 
 class Configer:
@@ -242,7 +257,10 @@ class Configer:
                        "\n" \
                        "[PROXY]\n" \
                        "url=\n" \
-                       "port=\n"
+                       "port=\n" \
+                       "\n" \
+                       "[USER]\n" \
+                       "id=\n"
             f.write(templete)
             f.close()
         self.PATH = os.getcwd().replace("\\", "/") + "/config.ini"
@@ -266,7 +284,7 @@ class Configer:
         SERVER_PORT = cfg.get("SERVER", "port")
         PROXY_URL = cfg.get("PROXY", "url")
         PROXY_PORT = cfg.get("PROXY", "port")
-        return cfg.get("SERVER", "url"), cfg.get("SERVER", "port"), cfg.get("PROXY", "url"), cfg.get("PROXY", "port")
+        return cfg.get("SERVER", "url"), cfg.get("SERVER", "port"), cfg.get("PROXY", "url"), cfg.get("PROXY", "port"), cfg.get("USER", "id")
 
     def setConfig(self):
         cfg = ConfigParser()
