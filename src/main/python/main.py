@@ -284,7 +284,7 @@ class Configer:
         SERVER_PORT = cfg.get("SERVER", "port")
         PROXY_URL = cfg.get("PROXY", "url")
         PROXY_PORT = cfg.get("PROXY", "port")
-        return cfg.get("SERVER", "url"), cfg.get("SERVER", "port"), cfg.get("PROXY", "url"), cfg.get("PROXY", "port"), cfg.get("USER", "id")
+        return cfg.get("SERVER", "url"), cfg.get("SERVER", "port"), cfg.get("PROXY", "url"), cfg.get("PROXY", "port")
 
     def setConfig(self):
         cfg = ConfigParser()
