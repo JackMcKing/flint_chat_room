@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QMainWindow, QApplication
 import requests as req
 from configparser import ConfigParser
 
-from src.main.python.MainUI import Ui_MainWindow
+from MainUI import Ui_MainWindow
 
 # TODO Replace this line with "from src.main.python.MainUI import Ui_MainWindow" before coding
 
