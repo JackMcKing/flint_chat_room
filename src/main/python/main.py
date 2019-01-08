@@ -282,10 +282,10 @@ class Configer:
     def getConfig(self):
         cfg = ConfigParser()
         cfg.read(self.PATH)
-        # global SERVER_URL
-        # global SERVER_PORT
-        # global PROXY_URL
-        # global PROXY_PORT
+        global SERVER_URL
+        global SERVER_PORT
+        global PROXY_URL
+        global PROXY_PORT
         SERVER_URL = cfg.get("SERVER", "url")
         SERVER_PORT = cfg.get("SERVER", "port")
         PROXY_URL = cfg.get("PROXY", "url")
