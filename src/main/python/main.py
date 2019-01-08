@@ -5,7 +5,6 @@ import sys
 import webbrowser
 
 from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtWebEngineWidgets import QWebEngineView
 from fbs_runtime.application_context import ApplicationContext
 from PyQt5.QtWidgets import QMainWindow, QApplication
 import requests as req
@@ -270,11 +269,6 @@ def refresh_list():
             TIMESTAMP = (msg.get('TIMESTAMP'))
             TEXT = (msg.get('TEXT'))
             ret.append(str(ID + " [" + TIMESTAMP + "]" + " : " + TEXT))
-        # for i in range(len(r)):
-        #     add_text = r[str(i)]
-        #     str(add_text).encode("utf-8")
-        #     add_text = add_text[:-1]  # 去掉\n
-        #     ret.append(add_text)
         return list(ret)
 
 
@@ -315,27 +309,10 @@ class Configer:
                     return True
         return False
 
-    # def getConfig(self):
-    #     cfg = ConfigParser()
-    #     cfg.read(self.PATH)
-    #     global SERVER_URL
-    #     global SERVER_PORT
-    #     global PROXY_URL
-    #     global PROXY_PORT
-    #     SERVER_URL = cfg.get("SERVER", "url")
-    #     SERVER_PORT = cfg.get("SERVER", "port")
-    #     PROXY_URL = cfg.get("PROXY", "url")
-    #     PROXY_PORT = cfg.get("PROXY", "port")
-    #     return cfg.get("SERVER", "url"), cfg.get("SERVER", "port"), cfg.get("PROXY", "url"), cfg.get("PROXY", "port"), cfg.get("USER", "id")
-
     def setConfig(self, section, option, value):
         cfg = ConfigParser()
         cfg.read(self.PATH)
         cfg.set(section, option, value)
-        # cfg.set("SERVER", "url", self.server_url)
-        # cfg.set("SERVER", "port", self.server_port)
-        # cfg.set("PROXY", "url", self.proxy_url)
-        # cfg.set("PROXY", "port", self.proxy_port)
         f = open(self.PATH, 'w')
         cfg.write(f)
 
