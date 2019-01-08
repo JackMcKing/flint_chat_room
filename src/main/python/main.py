@@ -2,14 +2,16 @@ import json
 import os
 import time
 import sys
+import webbrowser
 
 from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 from fbs_runtime.application_context import ApplicationContext
 from PyQt5.QtWidgets import QMainWindow, QApplication
 import requests as req
 from configparser import ConfigParser
 
-from src.main.python.MainWindow import Ui_MainWindow
+from src.main.python.MainWindowNCL import Ui_MainWindow
 
 # TODO Replace this line with "from src.main.python.MainUI import Ui_MainWindow" before coding
 
@@ -17,6 +19,7 @@ SERVER_URL = ""
 SERVER_PORT = ""
 PROXY_URL = ""
 PROXY_PORT = ""
+USER_ID = ""
 msgLen = 0
 
 
@@ -94,9 +97,10 @@ class RefreshThread(QThread):
             if url.__contains__("http"):
                 try:
                     li = refresh_list()
+                    self.trigger.emit(li)
                 except:
                     pass
-                self.trigger.emit(li)
+
                 time.sleep(1)
 
 
@@ -108,23 +112,47 @@ class MWindow(QMainWindow, Ui_MainWindow):
 
         # Config parser
         conf = Configer()
-        conf_li = conf.getConfig()
-        self.lineEdit_2.setText(conf_li[0])
-        self.lineEdit_3.setText(conf_li[1])
-        self.lineEdit_4.setText(conf_li[2])
-        self.lineEdit_5.setText(conf_li[3])
+        # init setting line edit
+        self.lineEdit_2.setText(conf.server_url)
+        self.lineEdit_3.setText(conf.server_port)
+        self.lineEdit_4.setText(conf.proxy_url)
+        self.lineEdit_5.setText(conf.proxy_port)
+        self.ID_LINEEDIT.setText(conf.user_id)
 
+        # init global var
+        global SERVER_URL
+        global SERVER_PORT
+        global PROXY_URL
+        global PROXY_PORT
+        global USER_ID
+        SERVER_URL = conf.server_url
+        SERVER_PORT = conf.server_port
+        PROXY_URL = conf.proxy_url
+        PROXY_PORT = conf.proxy_port
+        USER_ID = conf.user_id
+
+        self.actionGitHub.triggered.connect(self.goto_github)
+        self.actionTrello.triggered.connect(self.goto_trello)
         self.pushButton.pressed.connect(self.push_btn)
         self.UPDATE_ID_BTN.pressed.connect(self.push_update_id_btn)
         self.pushButton_2.pressed.connect(self.push_connect_btn)
 
         self.show()
 
+    def goto_github(self):
+        webbrowser.open_new("https://github.com/JackMcKing/flint_chat_room")
+
+    def goto_trello(self):
+        webbrowser.open_new("https://trello.com/b/YH3RcfOA/flint-chat-room")
+
     def push_update_id_btn(self):
-        id = self.ID_LINEEDIT.text()
-        conf = ConfigParser()
-        conf.set("USER", "id", id)
-        conf.
+        conf = Configer()
+        old_id = conf.user_id
+        new_id = self.ID_LINEEDIT.text()
+        send_to_server("flint bot", str(time.time()), "User "+old_id+" have changed id as "+new_id)
+        global USER_ID
+        USER_ID = new_id
+        conf.setConfig("USER", "id", new_id)
 
     def push_connect_btn(self):
         self.label_5.setText("connecting...")
@@ -160,7 +188,10 @@ class MWindow(QMainWindow, Ui_MainWindow):
             PROXY_URL = proxy_url
             PROXY_PORT = proxy_port
             conf = Configer()
-            conf.setConfig()
+            conf.setConfig("SERVER", "url", server_url)
+            conf.setConfig("SERVER", "url", server_url)
+            conf.setConfig("SERVER", "url", server_url)
+            conf.setConfig("SERVER", "url", server_url)
         else:
             self.label_5.setText("connect failed")
 
@@ -175,7 +206,7 @@ class MWindow(QMainWindow, Ui_MainWindow):
         elif isJustNoneLetterflag is True:
             return
         else:
-            r = send_to_server(self.ID_LINEEDIT.text(), str(time.time()), msg_lineedit)
+            r = send_to_server(USER_ID, str(time.time()), msg_lineedit)
             if r is False:
                 self.STATUS_LABEL.setText("发送失败（没有填写用户ID或网络连接丢失）")
             else:
@@ -250,13 +281,11 @@ def refresh_list():
 class Configer:
 
     def __init__(self):
-        self.server_url = SERVER_URL
-        self.server_port = SERVER_PORT
-        self.proxy_url = PROXY_URL
-        self.proxy_port = PROXY_PORT
+        self.PATH = os.getcwd().replace("\\", "/") + "/config.ini"
+        # self.PATH = "./config.ini"
 
         if not self.checkIsConfigExist():
-            f = open(os.getcwd().replace("\\", "/") + "/config.ini", "w", newline="")
+            f = open(self.PATH, "w", newline="")
             templete = "[SERVER]\n" \
                        "url=\n" \
                        "port=\n" \
@@ -269,7 +298,14 @@ class Configer:
                        "id=\n"
             f.write(templete)
             f.close()
-        self.PATH = os.getcwd().replace("\\", "/") + "/config.ini"
+
+        conf = ConfigParser()
+        conf.read(self.PATH)
+        self.server_url = conf.get("SERVER", "url")
+        self.server_port = conf.get("SERVER", "port")
+        self.proxy_url = conf.get("PROXY", "url")
+        self.proxy_port = conf.get("PROXY", "port")
+        self.user_id = conf.get("USER", "id")
 
     def checkIsConfigExist(self):
         cur_path_files = os.listdir(os.getcwd().replace("\\", "/"))
@@ -279,26 +315,27 @@ class Configer:
                     return True
         return False
 
-    def getConfig(self):
-        cfg = ConfigParser()
-        cfg.read(self.PATH)
-        global SERVER_URL
-        global SERVER_PORT
-        global PROXY_URL
-        global PROXY_PORT
-        SERVER_URL = cfg.get("SERVER", "url")
-        SERVER_PORT = cfg.get("SERVER", "port")
-        PROXY_URL = cfg.get("PROXY", "url")
-        PROXY_PORT = cfg.get("PROXY", "port")
-        return cfg.get("SERVER", "url"), cfg.get("SERVER", "port"), cfg.get("PROXY", "url"), cfg.get("PROXY", "port")
+    # def getConfig(self):
+    #     cfg = ConfigParser()
+    #     cfg.read(self.PATH)
+    #     global SERVER_URL
+    #     global SERVER_PORT
+    #     global PROXY_URL
+    #     global PROXY_PORT
+    #     SERVER_URL = cfg.get("SERVER", "url")
+    #     SERVER_PORT = cfg.get("SERVER", "port")
+    #     PROXY_URL = cfg.get("PROXY", "url")
+    #     PROXY_PORT = cfg.get("PROXY", "port")
+    #     return cfg.get("SERVER", "url"), cfg.get("SERVER", "port"), cfg.get("PROXY", "url"), cfg.get("PROXY", "port"), cfg.get("USER", "id")
 
-    def setConfig(self):
+    def setConfig(self, section, option, value):
         cfg = ConfigParser()
         cfg.read(self.PATH)
-        cfg.set("SERVER", "url", self.server_url)
-        cfg.set("SERVER", "port", self.server_port)
-        cfg.set("PROXY", "url", self.proxy_url)
-        cfg.set("PROXY", "port", self.proxy_port)
+        cfg.set(section, option, value)
+        # cfg.set("SERVER", "url", self.server_url)
+        # cfg.set("SERVER", "port", self.server_port)
+        # cfg.set("PROXY", "url", self.proxy_url)
+        # cfg.set("PROXY", "port", self.proxy_port)
         f = open(self.PATH, 'w')
         cfg.write(f)
 
