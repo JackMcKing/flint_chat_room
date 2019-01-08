@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QMainWindow, QApplication
 import requests as req
 from configparser import ConfigParser
 
-from MainUI import Ui_MainWindow
+from src.main.python.MainWindow import Ui_MainWindow
 
 # TODO Replace this line with "from src.main.python.MainUI import Ui_MainWindow" before coding
 
@@ -22,7 +22,7 @@ msgLen = 0
 
 class AppContext(ApplicationContext):  # 1. Subclass ApplicationContext
     def run(self):  # 2. Implement run()
-        window = Dlog()
+        window = MWindow()
         window.setWindowTitle("flint chat room")
 
         def online_work(num):
@@ -100,7 +100,7 @@ class RefreshThread(QThread):
                 time.sleep(1)
 
 
-class Dlog(QMainWindow, Ui_MainWindow):
+class MWindow(QMainWindow, Ui_MainWindow):
 
     def __init__(self, *args, **kwargs):
         super(QMainWindow, self).__init__(*args, **kwargs)
@@ -115,10 +115,16 @@ class Dlog(QMainWindow, Ui_MainWindow):
         self.lineEdit_5.setText(conf_li[3])
 
         self.pushButton.pressed.connect(self.push_btn)
-
+        self.UPDATE_ID_BTN.pressed.connect(self.push_update_id_btn)
         self.pushButton_2.pressed.connect(self.push_connect_btn)
 
         self.show()
+
+    def push_update_id_btn(self):
+        id = self.ID_LINEEDIT.text()
+        conf = ConfigParser()
+        conf.set("USER", "id", id)
+        conf.
 
     def push_connect_btn(self):
         self.label_5.setText("connecting...")
@@ -276,10 +282,10 @@ class Configer:
     def getConfig(self):
         cfg = ConfigParser()
         cfg.read(self.PATH)
-        global SERVER_URL
-        global SERVER_PORT
-        global PROXY_URL
-        global PROXY_PORT
+        # global SERVER_URL
+        # global SERVER_PORT
+        # global PROXY_URL
+        # global PROXY_PORT
         SERVER_URL = cfg.get("SERVER", "url")
         SERVER_PORT = cfg.get("SERVER", "port")
         PROXY_URL = cfg.get("PROXY", "url")
