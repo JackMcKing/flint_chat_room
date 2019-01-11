@@ -4,13 +4,13 @@ import time
 import sys
 import webbrowser
 
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal, Qt
 from fbs_runtime.application_context import ApplicationContext
-from PyQt5.QtWidgets import QMainWindow, QApplication
+from PyQt5.QtWidgets import QMainWindow, QApplication, QTreeWidgetItem, QMenu, QTreeWidget
 import requests as req
 from configparser import ConfigParser
 
-from src.main.python.MainWindowNCL import Ui_MainWindow
+from src.main.python.MainWindow import Ui_MainWindow
 
 # TODO Replace this line with "from src.main.python.MainUI import Ui_MainWindow" before coding
 
@@ -135,8 +135,51 @@ class MWindow(QMainWindow, Ui_MainWindow):
         self.pushButton.pressed.connect(self.push_btn)
         self.UPDATE_ID_BTN.pressed.connect(self.push_update_id_btn)
         self.pushButton_2.pressed.connect(self.push_connect_btn)
+        self.ADD_CHNNEL_BTN.pressed.connect(self.push_add_channel_btn)
+        self.CHANNEL_LIST_TREEWIDGET.itemDoubleClicked['QTreeWidgetItem*', 'int'].connect(self.join_channel)
+        self.createContextMenu()
 
         self.show()
+
+    def createContextMenu(self):
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.showContextMenu)
+
+        # 创建QMenu
+        self.contextMenu = QMenu(self)
+
+        self.action_del = self.contextMenu.addAction(u'Delete')
+        self.action_del.triggered.connect(self.del_channel)
+
+    def showContextMenu(self, pos):
+        # 菜单显示前，将它移动到鼠标点击的位置
+        self.contextMenu.move(self.pos() + pos)
+        self.contextMenu.show()
+
+    def del_channel(self):
+        tree_root = self.CHANNEL_LIST_TREEWIDGET
+        channel = self.getitem()
+        tree_root.takeTopLevelItem(tree_root.indexOfTopLevelItem(channel))
+
+    def getitem(self):
+        Item_list = self.CHANNEL_LIST_TREEWIDGET.selectedItems()
+        return Item_list[0]
+
+    def join_channel(self):
+        conf = Configer()
+        id = conf.user_id
+        channel = self.getitem()
+        # channel.extend()
+        if channel.whatsThis(0) == "user":
+            return
+        user = QTreeWidgetItem(channel)
+        user.setWhatsThis(0, "user")
+        user.setText(0, id)
+
+    def push_add_channel_btn(self):
+        new_channel = QTreeWidgetItem(self.CHANNEL_LIST_TREEWIDGET)
+        new_channel.setText(0, self.ADD_CHANNEL_NAME_EDIT.text())
+        self.ADD_CHANNEL_NAME_EDIT.clear()
 
     def goto_github(self):
         webbrowser.open_new("https://github.com/JackMcKing/flint_chat_room")
